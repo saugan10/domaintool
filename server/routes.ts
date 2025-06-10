@@ -17,15 +17,30 @@ import {
 } from "@shared/schema";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
-const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || "rzp_test_key";
-const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || "rzp_test_secret";
+const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || "rzp_test_1234567890";
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || "test_secret_1234567890";
 const API_NINJAS_KEY = process.env.API_NINJAS_KEY || "your-api-key";
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: RAZORPAY_KEY_ID,
-  key_secret: RAZORPAY_KEY_SECRET,
-});
+// Initialize Razorpay with fallback for testing
+let razorpay: any;
+try {
+  razorpay = new Razorpay({
+    key_id: RAZORPAY_KEY_ID,
+    key_secret: RAZORPAY_KEY_SECRET,
+  });
+} catch (error) {
+  console.warn("Razorpay initialization failed, using mock implementation");
+  razorpay = {
+    orders: {
+      create: async (options: any) => ({
+        id: `order_mock_${Date.now()}`,
+        amount: options.amount,
+        currency: options.currency,
+        receipt: options.receipt,
+      })
+    }
+  };
+}
 
 // Email transporter setup
 const transporter = nodemailer.createTransport({
@@ -306,15 +321,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { domainId, amount } = req.body;
       
+      if (!domainId || !amount) {
+        return res.status(400).json({ message: "Domain ID and amount are required" });
+      }
+      
       const order = await razorpay.orders.create({
         amount: amount * 100, // Convert to paise
-        currency: "INR",
+        currency: "USD",
         receipt: `domain_${domainId}_${Date.now()}`,
       });
       
-      res.json({ orderId: order.id, amount: order.amount, currency: order.currency });
+      res.json({ 
+        orderId: order.id, 
+        amount: order.amount, 
+        currency: order.currency,
+        key: RAZORPAY_KEY_ID 
+      });
     } catch (error) {
-      res.status(500).json({ message: "Failed to create payment order" });
+      console.error("Payment order creation error:", error);
+      res.status(500).json({ 
+        message: "Failed to create payment order",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 

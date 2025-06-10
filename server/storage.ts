@@ -57,8 +57,18 @@ export class MemStorage implements IStorage {
     this.initializeSampleData();
   }
 
-  private initializeSampleData() {
-    // Sample user (will be created when someone registers)
+  private async initializeSampleData() {
+    // Create a test user for easy login testing
+    const testUser: User = {
+      id: 1,
+      username: "testuser",
+      email: "test@example.com",
+      password: "$2b$10$rOhF3VJzWH6Q6zVR9.4GKO3XvH.XqM4LB6pOGJjzF5KhVWKB9qyPK", // "password123"
+      role: "user",
+      createdAt: new Date(),
+    };
+    this.users.set(1, testUser);
+    this.currentUserId = 2; // Start from 2 for new registrations
     
     // Sample domains
     const now = new Date();
@@ -241,8 +251,8 @@ export class MemStorage implements IStorage {
     };
     this.users.set(id, user);
     
-    // Associate sample data with the first user
-    if (id === 1) {
+    // Associate sample data with the first user created
+    if (this.users.size === 1) {
       this.associateSampleDataWithUser(id);
     }
     
