@@ -1,0 +1,99 @@
+Build a modern, full-stack **Domain Management Web Application** using the following stack:
+
+### 📦 Tech Stack:
+
+**Frontend:**
+- React.js
+- Tailwind CSS for custom UI (avoid generic UI libraries)
+- Chart.js or Recharts for data visualization
+
+**Backend:**
+- Node.js with Express
+- MongoDB with Mongoose
+- Razorpay for payment integration
+- Free WHOIS API for domain info (e.g., `https://api.api-ninjas.com/v1/whois` or similar)
+- NodeMailer for notifications
+
+---
+
+## 🧩 Functional Requirements:
+
+### 🔐 Authentication:
+- Secure Sign Up / Login using JWT
+- Store user roles (Admin / User)
+
+### 🌐 Domain Management:
+- Add domain: name, registrar (autofetched), expiry date (autofetched), tags
+- View domain list with search and filters
+- Edit / Delete domain
+- Auto status update: Active, Expiring Soon, Expired
+
+### 📊 Dashboard:
+- Summary: total domains, status breakdown
+- Renewal trends over time
+- Visuals: Pie chart for statuses, Bar/Line chart for trends
+
+### ⏳ Expiry Status:
+- Show countdown / progress bars
+- Visual colors:
+  - Green = Active
+  - Orange = Expiring Soon
+  - Red = Expired
+
+### 🔔 Email Notifications:
+- Auto email reminders before expiry (e.g., 7 days prior)
+- Use NodeMailer
+- Background task using `node-cron`
+
+### 💳 Razorpay Payment Integration:
+- Allow manual domain renewal via Razorpay
+- On success:
+  - Extend expiry by 1 year (simulate)
+  - Save invoice in DB
+- Show payment history
+
+### 🧾 Invoice Management:
+- Store all renewal transactions
+- Allow invoice view/download
+
+### 🌐 WHOIS Lookup via Free API:
+- Use a **free WHOIS API** (e.g., [API Ninjas WHOIS](https://api-ninjas.com/api/whois))
+- Auto-fetch registrar and expiry date when adding a domain
+- Use free tier only, no paid keys required
+
+---
+
+## 🎨 Custom UI Requirements:
+- Use **Tailwind CSS** to build a **completely unique design** (not a template)
+- Components:
+  - Gradient backgrounds
+  - Animated progress rings
+  - Responsive domain cards
+  - Fixed sidebar with icons
+- Pages:
+  - Auth (Login/Register)
+  - Dashboard
+  - Domain List
+  - Add/Edit Domain
+  - Settings
+  - Payments
+- Mobile responsive and clean layout
+
+---
+
+## 📁 Folder Structure:
+
+**Frontend**: `client/`
+- Built with React + Tailwind
+- Pages: Auth, Dashboard, Domains, Payments
+- Components: Sidebar, DomainCard, Chart, Modal
+
+**Backend**: `server/`
+- Express API
+- Routes:
+  - `/auth` (JWT auth)
+  - `/domains` (CRUD + auto status)
+  - `/payments` (Razorpay)
+  - `/notifications` (NodeMailer)
+  - `/whois` (calls free API)
+- MongoDB models: User, Domain, Payment
