@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "./lib/auth";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
+import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import Domains from "@/pages/domains";
 import AddDomain from "@/pages/add-domain";
@@ -51,7 +52,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   }
   
   if (user) {
-    return <Dashboard />;
+    return <Home />;
   }
   
   return <>{children}</>;
@@ -71,6 +72,11 @@ function Router() {
         </PublicRoute>
       </Route>
       <Route path="/" component={() => (
+        <ProtectedRoute>
+          <Home />
+        </ProtectedRoute>
+      )} />
+      <Route path="/dashboard" component={() => (
         <ProtectedRoute>
           <Dashboard />
         </ProtectedRoute>
