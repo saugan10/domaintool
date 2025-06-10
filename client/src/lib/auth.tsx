@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
     try {
       const response = await apiRequest("POST", "/api/auth/login", credentials);
       const data = await response.json();
-      
+
       if (data.token && data.user) {
         localStorage.setItem("token", data.token);
         setUser(data.user);
@@ -66,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
     try {
       const response = await apiRequest("POST", "/api/auth/register", credentials);
       const data = await response.json();
-      
+
       if (data.token && data.user) {
         localStorage.setItem("token", data.token);
         setUser(data.user);

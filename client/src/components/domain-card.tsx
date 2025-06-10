@@ -12,9 +12,11 @@ import type { DomainWithStats } from "@shared/schema";
 interface DomainCardProps {
   domain: DomainWithStats;
   showActions?: boolean;
+  loading?: boolean;
+  handleRenew?: (domainId: string) => Promise<void>;
 }
 
-export default function DomainCard({ domain, showActions = false }: DomainCardProps) {
+export default function DomainCard({ domain, showActions = false, loading = false, handleRenew }: DomainCardProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -81,99 +83,7 @@ export default function DomainCard({ domain, showActions = false }: DomainCardPr
   const daysRemaining = domain.expiryDate ? getDaysUntilExpiry(domain.expiryDate) : null;
   const statusClass = getStatusColor(domain.status);
 
-  const handleRenew = async () => {
-    try {
-      const orderResponse = await apiRequest("POST", "/api/payments/create-order", {
-        domainId: domain.id,
-        amount: 1299, // $12.99
-      });
 
-      const orderData = await orderResponse.json();
-
-      // Check if Razorpay is loaded
-      // @ts-ignore
-      if (typeof window.Razorpay === 'undefined') {
-        // Fallback for testing - simulate successful payment
-        try {
-          await apiRequest("POST", "/api/payments/verify", {
-            paymentId: `pay_mock_${Date.now()}`,
-            orderId: orderData.orderId,
-            signature: `sig_mock_${Date.now()}`,
-            domainId: domain.id,
-            amount: 1299,
-          });
-
-          toast({
-            title: "Payment Successful (Test Mode)",
-            description: `${domain.name} has been renewed successfully!`,
-          });
-
-          queryClient.invalidateQueries({ queryKey: ["/api/domains"] });
-          queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
-
-
-        } catch (error) {
-          toast({
-            title: "Payment Processing Failed",
-            description: "Please try again later",
-            variant: "destructive",
-          });
-        }
-        return;
-      }
-
-      // Initialize Razorpay checkout
-      const options = {
-        key: orderData.key || "rzp_test_1234567890",
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "Domain Renewal",
-        description: `Renewal for ${domain.name}`,
-        order_id: orderData.orderId,
-        handler: async (response: any) => {
-          try {
-            await apiRequest("POST", "/api/payments/verify", {
-              paymentId: response.razorpay_payment_id,
-              orderId: response.razorpay_order_id,
-              signature: response.razorpay_signature,
-              domainId: domain.id,
-              amount: 1299,
-            });
-
-            toast({
-              title: "Payment Successful",
-              description: `${domain.name} has been renewed successfully!`,
-            });
-
-            queryClient.invalidateQueries({ queryKey: ["/api/domains"] });
-            queryClient.invalidateQueries({ queryKey: ["/api/dashboard/stats"] });
-
-
-          } catch (error) {
-            toast({
-              title: "Payment Verification Failed",
-              description: "Please contact support",
-              variant: "destructive",
-            });
-          }
-        },
-        theme: {
-          color: "#3B82F6",
-        },
-      };
-
-      // @ts-ignore
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (error) {
-      console.error("Payment initiation error:", error);
-      toast({
-        title: "Failed to initiate payment",
-        description: error instanceof Error ? error.message : "Please try again later",
-        variant: "destructive",
-      });
-    }
-  };
 
   return (
     <Card className="card-hover">
@@ -231,10 +141,21 @@ export default function DomainCard({ domain, showActions = false }: DomainCardPr
         </div>
 
         {showActions && (
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 flex flex-col gap-2">
+            {(domain.status === "expiring" || domain.status === "expired") && (
+            <Button 
+              size="sm" 
+              className="w-full"
+              onClick={() => handleRenew(domain.id)}
+              disabled={loading}
+            >
+              {loading ? "Processing..." : "Renew Now"}
+            </Button>
+          )}
+            <div className="flex gap-2">
             <Button
               size="sm"
-              onClick={() => handleRenew()}
+              onClick={() => renewDomainMutation.mutate()}
               disabled={renewDomainMutation.isPending}
               className="flex-1"
             >
@@ -252,6 +173,7 @@ export default function DomainCard({ domain, showActions = false }: DomainCardPr
             >
               <Trash2 className="h-3 w-3" />
             </Button>
+            </div>
           </div>
         )}
       </CardContent>

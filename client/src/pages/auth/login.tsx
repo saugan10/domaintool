@@ -33,9 +33,10 @@ export default function Login() {
         description: "You have successfully logged in.",
       });
     } catch (error) {
+      console.error("Login error:", error);
       toast({
         title: "Login failed",
-        description: error instanceof Error ? error.message : "Invalid credentials",
+        description: error instanceof Error ? error.message : "Invalid credentials. Try username: testuser, password: password123",
         variant: "destructive",
       });
     } finally {

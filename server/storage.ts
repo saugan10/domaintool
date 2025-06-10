@@ -4,6 +4,7 @@ import {
   type Payment, type InsertPayment, type Notification, type InsertNotification,
   type DomainWithStats, type DashboardStats
 } from "@shared/schema";
+import bcrypt from "bcrypt";
 
 export interface IStorage {
   // User methods
@@ -54,16 +55,17 @@ export class MemStorage implements IStorage {
     this.currentNotificationId = 1;
     
     // Add sample data for testing
-    this.initializeSampleData();
+    this.initializeSampleData().catch(console.error);
   }
 
   private async initializeSampleData() {
     // Create a test user for easy login testing
+    // Password: "password123" hashed with bcrypt
     const testUser: User = {
       id: 1,
       username: "testuser",
       email: "test@example.com",
-      password: "$2b$10$rOhF3VJzWH6Q6zVR9.4GKO3XvH.XqM4LB6pOGJjzF5KhVWKB9qyPK", // "password123"
+      password: await bcrypt.hash("password123", 10),
       role: "user",
       createdAt: new Date(),
     };
