@@ -18,7 +18,7 @@ export const domains = pgTable("domains", {
   registrar: text("registrar"),
   expiryDate: timestamp("expiry_date"),
   status: text("status").notNull().default("active"), // 'active', 'expiring', 'expired'
-  tags: jsonb("tags").$type<string[]>().default([]),
+  tags: jsonb("tags").$type<string[]>(),
   autoRenew: boolean("auto_renew").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -62,6 +62,8 @@ export const insertDomainSchema = createInsertSchema(domains).pick({
   expiryDate: true,
   tags: true,
   autoRenew: true,
+}).extend({
+  status: z.string().optional(),
 });
 
 export const insertPaymentSchema = createInsertSchema(payments).pick({

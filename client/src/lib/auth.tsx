@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { apiRequest } from "./queryClient";
 import type { User, LoginCredentials, RegisterCredentials } from "@shared/schema";
 

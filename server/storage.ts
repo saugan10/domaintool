@@ -71,6 +71,7 @@ export class MemStorage implements IStorage {
     const user: User = {
       ...insertUser,
       id,
+      role: insertUser.role || "user",
       createdAt: new Date(),
     };
     this.users.set(id, user);
@@ -89,7 +90,13 @@ export class MemStorage implements IStorage {
     const id = this.currentDomainId++;
     const now = new Date();
     const domain: Domain = {
-      ...insertDomain,
+      userId: insertDomain.userId,
+      name: insertDomain.name,
+      registrar: insertDomain.registrar || null,
+      expiryDate: insertDomain.expiryDate || null,
+      status: "active",
+      tags: Array.isArray(insertDomain.tags) ? insertDomain.tags : [],
+      autoRenew: insertDomain.autoRenew || false,
       id,
       createdAt: now,
       updatedAt: now,
@@ -182,6 +189,10 @@ export class MemStorage implements IStorage {
     const payment: Payment = {
       ...insertPayment,
       id,
+      status: insertPayment.status || "pending",
+      currency: insertPayment.currency || "USD",
+      razorpayPaymentId: insertPayment.razorpayPaymentId || null,
+      razorpayOrderId: insertPayment.razorpayOrderId || null,
       createdAt: new Date(),
     };
     this.payments.set(id, payment);
@@ -207,7 +218,10 @@ export class MemStorage implements IStorage {
   async createNotification(insertNotification: InsertNotification): Promise<Notification> {
     const id = this.currentNotificationId++;
     const notification: Notification = {
-      ...insertNotification,
+      userId: insertNotification.userId,
+      domainId: insertNotification.domainId || null,
+      type: insertNotification.type,
+      message: insertNotification.message,
       id,
       emailSent: false,
       read: false,
