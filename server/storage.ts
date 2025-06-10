@@ -52,6 +52,171 @@ export class MemStorage implements IStorage {
     this.currentDomainId = 1;
     this.currentPaymentId = 1;
     this.currentNotificationId = 1;
+    
+    // Add sample data for testing
+    this.initializeSampleData();
+  }
+
+  private initializeSampleData() {
+    // Sample user (will be created when someone registers)
+    
+    // Sample domains
+    const now = new Date();
+    const domains = [
+      {
+        id: this.currentDomainId++,
+        userId: 1,
+        name: "example.com",
+        registrar: "GoDaddy",
+        expiryDate: new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000), // 45 days from now
+        status: "active" as const,
+        tags: ["business", "main"],
+        autoRenew: true,
+        createdAt: new Date(now.getTime() - 300 * 24 * 60 * 60 * 1000), // 300 days ago
+        updatedAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
+      },
+      {
+        id: this.currentDomainId++,
+        userId: 1,
+        name: "mystore.com",
+        registrar: "Namecheap",
+        expiryDate: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000), // 15 days from now (expiring soon)
+        status: "expiring" as const,
+        tags: ["ecommerce", "store"],
+        autoRenew: false,
+        createdAt: new Date(now.getTime() - 350 * 24 * 60 * 60 * 1000), // 350 days ago
+        updatedAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+      },
+      {
+        id: this.currentDomainId++,
+        userId: 1,
+        name: "testsite.org",
+        registrar: "Domain.com",
+        expiryDate: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000), // 5 days ago (expired)
+        status: "expired" as const,
+        tags: ["test", "development"],
+        autoRenew: false,
+        createdAt: new Date(now.getTime() - 400 * 24 * 60 * 60 * 1000), // 400 days ago
+        updatedAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+      },
+      {
+        id: this.currentDomainId++,
+        userId: 1,
+        name: "portfolio.dev",
+        registrar: "Cloudflare",
+        expiryDate: new Date(now.getTime() + 180 * 24 * 60 * 60 * 1000), // 180 days from now
+        status: "active" as const,
+        tags: ["personal", "portfolio"],
+        autoRenew: true,
+        createdAt: new Date(now.getTime() - 185 * 24 * 60 * 60 * 1000), // 185 days ago
+        updatedAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+      },
+      {
+        id: this.currentDomainId++,
+        userId: 1,
+        name: "blog.net",
+        registrar: "Google Domains",
+        expiryDate: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000), // 90 days from now
+        status: "active" as const,
+        tags: ["blog", "content"],
+        autoRenew: false,
+        createdAt: new Date(now.getTime() - 275 * 24 * 60 * 60 * 1000), // 275 days ago
+        updatedAt: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+      }
+    ];
+
+    domains.forEach(domain => {
+      this.domains.set(domain.id, domain);
+    });
+
+    // Sample payments
+    const payments = [
+      {
+        id: this.currentPaymentId++,
+        userId: 1,
+        domainId: 1,
+        amount: 1299, // $12.99 in cents
+        currency: "USD",
+        razorpayPaymentId: "pay_sample123",
+        razorpayOrderId: "order_sample123",
+        status: "completed" as const,
+        createdAt: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+      },
+      {
+        id: this.currentPaymentId++,
+        userId: 1,
+        domainId: 4,
+        amount: 899, // $8.99 in cents
+        currency: "USD",
+        razorpayPaymentId: "pay_sample456",
+        razorpayOrderId: "order_sample456",
+        status: "completed" as const,
+        createdAt: new Date(now.getTime() - 185 * 24 * 60 * 60 * 1000), // 185 days ago
+      },
+      {
+        id: this.currentPaymentId++,
+        userId: 1,
+        domainId: 2,
+        amount: 1499, // $14.99 in cents
+        currency: "USD",
+        razorpayPaymentId: null,
+        razorpayOrderId: "order_sample789",
+        status: "pending" as const,
+        createdAt: new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+      }
+    ];
+
+    payments.forEach(payment => {
+      this.payments.set(payment.id, payment);
+    });
+
+    // Sample notifications
+    const notifications = [
+      {
+        id: this.currentNotificationId++,
+        userId: 1,
+        domainId: 2,
+        type: "expiry_reminder" as const,
+        message: "Domain mystore.com expires in 15 days",
+        emailSent: true,
+        read: false,
+        createdAt: new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+      },
+      {
+        id: this.currentNotificationId++,
+        userId: 1,
+        domainId: 3,
+        type: "domain_expired" as const,
+        message: "Domain testsite.org has expired",
+        emailSent: true,
+        read: false,
+        createdAt: new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+      },
+      {
+        id: this.currentNotificationId++,
+        userId: 1,
+        domainId: 1,
+        type: "payment_success" as const,
+        message: "Payment successful for domain example.com renewal",
+        emailSent: false,
+        read: true,
+        createdAt: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
+      },
+      {
+        id: this.currentNotificationId++,
+        userId: 1,
+        domainId: 4,
+        type: "payment_success" as const,
+        message: "Payment successful for domain portfolio.dev renewal",
+        emailSent: false,
+        read: true,
+        createdAt: new Date(now.getTime() - 185 * 24 * 60 * 60 * 1000), // 185 days ago
+      }
+    ];
+
+    notifications.forEach(notification => {
+      this.notifications.set(notification.id, notification);
+    });
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -75,7 +240,36 @@ export class MemStorage implements IStorage {
       createdAt: new Date(),
     };
     this.users.set(id, user);
+    
+    // Associate sample data with the first user
+    if (id === 1) {
+      this.associateSampleDataWithUser(id);
+    }
+    
     return user;
+  }
+
+  private associateSampleDataWithUser(userId: number) {
+    // Update all sample domains to belong to this user
+    this.domains.forEach((domain, domainId) => {
+      if (domain.userId === 1) {
+        this.domains.set(domainId, { ...domain, userId });
+      }
+    });
+
+    // Update all sample payments to belong to this user
+    this.payments.forEach((payment, paymentId) => {
+      if (payment.userId === 1) {
+        this.payments.set(paymentId, { ...payment, userId });
+      }
+    });
+
+    // Update all sample notifications to belong to this user
+    this.notifications.forEach((notification, notificationId) => {
+      if (notification.userId === 1) {
+        this.notifications.set(notificationId, { ...notification, userId });
+      }
+    });
   }
 
   async getDomainsByUserId(userId: number): Promise<Domain[]> {
