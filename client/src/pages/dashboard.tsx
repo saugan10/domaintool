@@ -15,6 +15,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  Filler,
 } from "chart.js";
 import { Search, Bell, Globe, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 import type { DashboardStats, DomainWithStats } from "@shared/schema";
@@ -27,7 +28,8 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 export default function Dashboard() {
@@ -44,7 +46,7 @@ export default function Dashboard() {
   });
 
   const recentDomains = domains?.slice(0, 6) || [];
-  const unreadNotifications = notifications?.filter((n: any) => !n.read).length || 0;
+  const unreadNotifications = Array.isArray(notifications) ? notifications.filter((n: any) => !n.read).length : 0;
 
   const statusChartData = {
     labels: ["Active", "Expiring Soon", "Expired"],
