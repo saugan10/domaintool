@@ -29,29 +29,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
       }
 
       const response = await apiRequest("GET", "/api/auth/me");
-      const data = await response.json();
-      setUser(data.user);
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+      } else {
+        localStorage.removeItem("token");
+        setUser(null);
+      }
     } catch (error) {
+      console.error("Auth check failed:", error);
       localStorage.removeItem("token");
+      setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
   const login = async (credentials: LoginCredentials) => {
-    const response = await apiRequest("POST", "/api/auth/login", credentials);
-    const data = await response.json();
-    
-    localStorage.setItem("token", data.token);
-    setUser(data.user);
+    try {
+      const response = await apiRequest("POST", "/api/auth/login", credentials);
+      const data = await response.json();
+      
+      if (data.token && data.user) {
+        localStorage.setItem("token", data.token);
+        setUser(data.user);
+      } else {
+        throw new Error("Invalid response from server");
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
   };
 
   const register = async (credentials: RegisterCredentials) => {
-    const response = await apiRequest("POST", "/api/auth/register", credentials);
-    const data = await response.json();
-    
-    localStorage.setItem("token", data.token);
-    setUser(data.user);
+    try {
+      const response = await apiRequest("POST", "/api/auth/register", credentials);
+      const data = await response.json();
+      
+      if (data.token && data.user) {
+        localStorage.setItem("token", data.token);
+        setUser(data.user);
+      } else {
+        throw new Error("Invalid response from server");
+      }
+    } catch (error) {
+      console.error("Registration failed:", error);
+      throw error;
+    }
   };
 
   const logout = () => {
