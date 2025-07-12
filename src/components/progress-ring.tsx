@@ -19,9 +19,9 @@ export default function ProgressRing({
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   const getStrokeColor = () => {
-    if (progress >= 70) return "#10B981"; // green
-    if (progress >= 30) return "#F59E0B"; // yellow
-    return "#EF4444"; // red
+    if (progress >= 70) return "#059669"; // QuickBooks green
+    if (progress >= 30) return "#D97706"; // QuickBooks amber
+    return "#DC2626"; // QuickBooks red
   };
 
   return (
@@ -32,9 +32,9 @@ export default function ProgressRing({
         height={size}
       >
         <circle
-          className="text-gray-200"
+          className="text-gray-300"
           strokeWidth={strokeWidth}
-          stroke="currentColor"
+          stroke="#E5E7EB"
           fill="transparent"
           r={radius}
           cx={size / 2}

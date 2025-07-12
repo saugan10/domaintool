@@ -1,90 +1,74 @@
-import { Link, useLocation } from "wouter";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/lib/auth";
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
+  Home, 
   Globe, 
-  BarChart3, 
-  List, 
   Plus, 
-  Search,
+  Search, 
   CreditCard, 
-  Bell, 
-  Settings, 
-  User 
-} from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+  Settings,
+  BarChart3,
+  Users
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: BarChart3 },
-  { name: "Domain Search", href: "/domain-search", icon: Search },
-  { name: "My Domains", href: "/domains", icon: List },
-  { name: "Add Domain", href: "/add-domain", icon: Plus },
-  { name: "Payments", href: "/payments", icon: CreditCard },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: 'Dashboard', href: '/dashboard', icon: Home },
+  { name: 'Domains', href: '/domains', icon: Globe },
+  { name: 'Add Domain', href: '/add-domain', icon: Plus },
+  { name: 'Domain Search', href: '/domain-search', icon: Search },
+  { name: 'Payments', href: '/payments', icon: CreditCard },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Customers', href: '/customers', icon: Users },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export default function Sidebar() {
-  const [location] = useLocation();
-  const { user } = useAuth();
+  const location = useLocation();
 
   return (
-    <div className="hidden md:flex md:flex-shrink-0">
-      <div className="flex flex-col w-64">
-        <div className="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-white shadow-lg border-r">
-          {/* Logo Section */}
-          <div className="flex items-center flex-shrink-0 px-4 mb-8">
-            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Globe className="w-4 h-4 text-white" />
-            </div>
-            <h1 className="ml-3 text-xl font-bold text-gray-900">DomainPro</h1>
+    <div className="flex flex-col w-64 bg-gray-800 min-h-screen">
+      {/* Logo */}
+      <div className="flex items-center px-6 py-4 border-b border-gray-700">
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <Globe className="w-5 h-5 text-white" />
           </div>
-          
-          {/* Navigation */}
-          <nav className="mt-5 flex-1 px-2 space-y-1">
-            {navigation.map((item) => {
-              const isActive = location === item.href || 
-                (item.href !== "/" && location.startsWith(item.href));
-              
-              return (
-                <Link 
-                  key={item.name} 
-                  href={item.href}
-                  className={cn(
-                    "group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors",
-                    isActive
-                      ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                  )}
-                >
-                  <item.icon
-                    className={cn(
-                      "mr-3 h-5 w-5 flex-shrink-0",
-                      isActive ? "text-blue-500" : "text-gray-400 group-hover:text-gray-500"
-                    )}
-                  />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
-          
-          {/* User Profile */}
-          <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-            <div className="flex items-center w-full">
-              <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                  {user?.username?.[0]?.toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-              <div className="ml-3 flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-700 truncate">
-                  {user?.username || "User"}
-                </p>
-                <p className="text-xs font-medium text-gray-500 capitalize">
-                  {user?.role || "User"}
-                </p>
-              </div>
-            </div>
+          <h1 className="ml-3 text-xl font-semibold text-white">DomainPro</h1>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-2 py-4 space-y-1">
+        {navigation.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.href;
+
+          return (
+            <Link
+              key={item.name}
+              to={item.href}
+              className={cn(
+                "quickbooks-nav-item",
+                isActive && "quickbooks-nav-item active"
+              )}
+            >
+              <Icon className="w-5 h-5 mr-3" />
+              {item.name}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* User info */}
+      <div className="border-t border-gray-700 px-4 py-4">
+        <div className="flex items-center">
+          <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+            <Users className="w-4 h-4 text-gray-300" />
+          </div>
+          <div className="ml-3">
+            <p className="text-sm font-medium text-white">Admin User</p>
+            <p className="text-xs text-gray-400">admin@example.com</p>
           </div>
         </div>
       </div>
