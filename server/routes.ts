@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import cron from "node-cron";
 import Razorpay from "razorpay";
@@ -423,6 +423,131 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(whoisData);
     } catch (error) {
       res.status(500).json({ message: "WHOIS lookup failed" });
+    }
+  });
+
+  // Domain search and suggestions
+  app.post("/api/domains/search", authenticateToken, async (req: any, res) => {
+    try {
+      const { query } = req.body;
+      if (!query || typeof query !== 'string') {
+        return res.status(400).json({ message: "Search query is required" });
+      }
+
+      // Generate domain suggestions
+      const extensions = ['.com', '.net', '.org', '.io', '.co', '.app', '.dev', '.tech', '.online', '.store'];
+      const prefixes = ['', 'get', 'try', 'my', 'go', 'the'];
+      const suffixes = ['', 'app', 'hub', 'pro', 'zone', 'base', 'lab', 'cloud'];
+      
+      const suggestions = [];
+      
+      // Direct matches
+      extensions.forEach(ext => {
+        suggestions.push({
+          name: `${query}${ext}`,
+          extension: ext,
+          type: 'exact'
+        });
+      });
+      
+      // Variations with prefixes and suffixes
+      prefixes.forEach(prefix => {
+        suffixes.forEach(suffix => {
+          if (prefix || suffix) {
+            const domainName = `${prefix}${query}${suffix}`;
+            extensions.slice(0, 3).forEach(ext => {
+              suggestions.push({
+                name: `${domainName}${ext}`,
+                extension: ext,
+                type: 'variation'
+              });
+            });
+          }
+        });
+      });
+      
+      // Limit to 12 suggestions and add metadata
+      const limitedSuggestions = suggestions.slice(0, 12).map(s => ({
+        ...s,
+        available: Math.random() > 0.3, // Simulate availability
+        price: Math.floor(Math.random() * 50) + 10,
+        popularity: Math.floor(Math.random() * 100)
+      }));
+      
+      res.json({ suggestions: limitedSuggestions });
+    } catch (error) {
+      res.status(500).json({ message: "Domain search failed" });
+    }
+  });
+
+  // Batch domain availability check
+  app.post("/api/domains/check-availability", authenticateToken, async (req: any, res) => {
+    try {
+      const { domains } = req.body;
+      if (!Array.isArray(domains)) {
+        return res.status(400).json({ message: "Domains array is required" });
+      }
+
+      const results = await Promise.all(
+        domains.map(async (domain) => {
+          try {
+            // Simulate availability check with some delay
+            await new Promise(resolve => setTimeout(resolve, Math.random() * 500));
+            
+            return {
+              domain,
+              available: Math.random() > 0.4, // Simulate availability
+              price: Math.floor(Math.random() * 50) + 10,
+              checked: true
+            };
+          } catch (error) {
+            return {
+              domain,
+              available: false,
+              error: "Check failed",
+              checked: false
+            };
+          }
+        })
+      );
+
+      res.json({ results });
+    } catch (error) {
+      res.status(500).json({ message: "Availability check failed" });
+    }
+  });
+
+  // Batch WHOIS lookup
+  app.post("/api/domains/batch-whois", authenticateToken, async (req: any, res) => {
+    try {
+      const { domains } = req.body;
+      if (!Array.isArray(domains)) {
+        return res.status(400).json({ message: "Domains array is required" });
+      }
+
+      const results = await Promise.all(
+        domains.map(async (domain) => {
+          try {
+            const whoisData = await lookupDomain(domain);
+            return {
+              domain,
+              whoisData,
+              success: true
+            };
+          } catch (error) {
+            return {
+              domain,
+              whoisData: null,
+              success: false,
+              error: "WHOIS lookup failed"
+            };
+          }
+        })
+      );
+
+      res.json({ results });
+    } catch (error) {
+      res.status(500).json({ message: "Batch WHOIS lookup failed" });
     }
   });
 

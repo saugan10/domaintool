@@ -4,7 +4,7 @@ import {
   type Payment, type InsertPayment, type Notification, type InsertNotification,
   type DomainWithStats, type DashboardStats
 } from "@shared/schema";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export interface IStorage {
   // User methods
